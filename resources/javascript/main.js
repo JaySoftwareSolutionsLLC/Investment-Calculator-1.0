@@ -73,7 +73,7 @@
         '2016' : 11.96,
         '2017' : 21.83
     }
-    let stdy7 = {
+    let sevenPercent = {
         '1950' : 7,
         '1951' : 7,
         '1952' : 7,
@@ -142,6 +142,10 @@
         '2015' : 7,
         '2016' : 7,
         '2017' : 7,
+    }
+    let markets = {
+        'sAndP' : sAndP,
+        '7%' : sevenPercent
     }
     let valueOfDollar = {
         '1950' : 1.00,
@@ -224,11 +228,11 @@
     // let curAge = 23;
     // let retAge = 50;
     // let curInv = 15000;
-    let desLiv = 50000;
+    let desLiv = 40000;
     let index = sAndP;
 
     let minInv = 50000;
-    let maxInv = 2000000;
+    let maxInv = 3000000;
     let invStp = 50000;
 
     let minYrs = 5;
@@ -238,19 +242,46 @@
 
     // Determine final balance of account starting at strtYr with $initInv, withdrawing $yrlyWithdrwl/yr for numYrs
 
-    let cases = {};
 
-    let inv = minInv;
-    for (inv; inv <= maxInv; inv += invStp) {
-        let years = minYrs;
-        let successByLength = [];
-        for (years; years <= maxYrs; years += yrsStp) {
-            let successRate = percentHistoricalBalancesAboveZero(inv, years)
-            successByLength.push(successRate);
+    function generateCases() {
+        desLiv = $('section.user-info input').val();
+        index = $('section.user-info select').val();
+        index = markets[index];
+        console.log(desLiv);
+        let cases = {};
+        let inv = minInv;
+        for (inv; inv <= maxInv; inv += invStp) {
+            let years = minYrs;
+            let successByLength = [];
+            // successByLength.push(inv);
+            for (years; years <= maxYrs; years += yrsStp) {
+                let successRate = percentHistoricalBalancesAboveZero(inv, years)
+                successByLength.push(successRate);
+            }
+            cases[inv] = successByLength;
         }
-        cases[inv] = successByLength;
+        return cases;
     }
-    console.log(cases);
+
+    function colorChart() {
+        let table = $('table.historical-confidence-table');
+        let dataCells = table.find('td');
+        let i = 0;
+        let LNG = dataCells.length;
+        for (i; i < LNG; i++) {
+            let thisCell = dataCells[i];
+            let thisValue = $(thisCell).html();
+            thisValue = parseInt(thisValue);
+            thisHue = thisValue * 1.2;
+            thisColor = `hsla(${thisHue}, 100%, 70%, 1)`;
+            $(thisCell).css('background-color', thisColor)
+            console.log(thisColor);
+        }
+        return dataCells;
+    }
+    // $('table').css('background-color', 'hsla(112.8, 100%, 70%, 1)');
+    // console.log(colorChart());
+    // console.log(generateCases());
 
     // Comment in return cases and remove allBalancesAboveZero to yield 4-D matrix
 
@@ -431,5 +462,56 @@ The median return was ${medCase} for a median annualized return of %${medCAGR}.
 
 
     // worstAndBestCases(10000, 20);
-    historicalSummary(1955, 1965, 10000);
+    // historicalSummary(1955, 1965, 10000);
+
+
+
+
+    $('section.user-info input').change(function() {
+        generateTable()
+    });
+    $('section.user-info select').change(function() {
+        generateTable()
+    });
+
+    // let exampleRow = [100000, 82%,]
+
+    function numberToDollarString(num) {
+        return '$' + num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    function generateTable() {
+        let cases = generateCases();
+        let table = $('table.historical-confidence-table');
+        let tableStr = `<tr>
+        					<th></th>
+        					<th>5 Yrs</th>
+        					<th>10 Yrs</th>
+        					<th>15 Yrs</th>
+        					<th>20 Yrs</th>
+        					<th>25 Yrs</th>
+        					<th>30 Yrs</th>
+        					<th>35 Yrs</th>
+        					<th>40 Yrs</th>
+        					<th>45 Yrs</th>
+        					<th>50 Yrs</th>
+        				</tr>`;
+        console.log(cases);
+        for (let amount in cases) {
+            let amountStr = numberToDollarString(amount);
+            let tableRow = `<tr><th>${amountStr}</th>`;
+            let percentages = cases[amount];
+            for (let p of percentages) {
+                tableRow += `<td>${p}%</td>`
+            }
+            tableRow += `</tr>`;
+            console.log(tableRow);
+            tableStr += tableRow;
+        }
+        table.html(tableStr);
+        colorChart();
+        // table.addClass('display');
+    }
+    // generateTable();
+
 // });
