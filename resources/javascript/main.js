@@ -225,10 +225,10 @@
     // let retAge = 50;
     // let curInv = 15000;
     let desLiv = 50000;
-    let index = stdy7;
+    let index = sAndP;
 
     let minInv = 50000;
-    let maxInv = 1000000;
+    let maxInv = 2000000;
     let invStp = 50000;
 
     let minYrs = 5;
@@ -246,7 +246,7 @@
         let successByLength = [];
         for (years; years <= maxYrs; years += yrsStp) {
             let successRate = percentHistoricalBalancesAboveZero(inv, years)
-            successByLength.push(`${years} years : ${successRate}%`);
+            successByLength.push(successRate);
         }
         cases[inv] = successByLength;
     }
@@ -261,7 +261,12 @@
         for (yr; yr <= (strtYr + numYrs); yr++) {
             balances.push(balance);
             IAbalance = Math.floor(adjustForInflation(balance, yr, strtYr));
-            IAbalances.push(IAbalance);
+            if (IAbalance <= 0) {
+                IAbalances.push(0);
+            }
+            else {
+                IAbalances.push(IAbalance);
+            }
             let percentChange = index[yr];
             balance = Math.floor((balance - adjustForInflation(yrlyWithdrwl, strtYr, yr)) * (100 + percentChange) / 100);
         }
@@ -282,7 +287,7 @@
         let cases = [];
         let yr = 1950;
         for (yr; yr <= (2017 - numYrs); yr++) {
-            cases.push(allBalancesAboveZero(accountBalances(index, initInv, desLiv, yr, numYrs)));
+            cases.push(accountBalances(index, initInv, desLiv, yr, numYrs));
         }
         let casesAsString = cases.join('');
         let trueCases;
@@ -294,6 +299,7 @@
         }
         let totalCases = cases.length;
         let percentage = Math.round((trueCases / totalCases) * 100);
+        return cases;
         return percentage;
         // console.log(percentage);
     }
