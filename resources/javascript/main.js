@@ -73,6 +73,76 @@
         '2016' : 11.96,
         '2017' : 21.83
     }
+    let stdy7 = {
+        '1950' : 7,
+        '1951' : 7,
+        '1952' : 7,
+        '1953' : 7,
+        '1954' : 7,
+        '1955' : 7,
+        '1956' : 7,
+        '1957' : 7,
+        '1958' : 7,
+        '1959' : 7,
+        '1960' : 7,
+        '1961' : 7,
+        '1962' : 7,
+        '1963' : 7,
+        '1964' : 7,
+        '1965' : 7,
+        '1966' : 7,
+        '1967' : 7,
+        '1968' : 7,
+        '1969' : 7,
+        '1970' : 7,
+        '1971' : 7,
+        '1972' : 7,
+        '1973' : 7,
+        '1974' : 7,
+        '1975' : 7,
+        '1976' : 7,
+        '1977' : 7,
+        '1978' : 7,
+        '1979' : 7,
+        '1980' : 7,
+        '1981' : 7,
+        '1982' : 7,
+        '1983' : 7,
+        '1984' : 7,
+        '1985' : 7,
+        '1986' : 7,
+        '1987' : 7,
+        '1988' : 7,
+        '1989' : 7,
+        '1990' : 7,
+        '1991' : 7,
+        '1992' : 7,
+        '1993' : 7,
+        '1994' : 7,
+        '1995' : 7,
+        '1996' : 7,
+        '1997' : 7,
+        '1998' : 7,
+        '1999' : 7,
+        '2000' : 7,
+        '2001' : 7,
+        '2002' : 7,
+        '2003' : 7,
+        '2004' : 7,
+        '2005' : 7,
+        '2006' : 7,
+        '2007' : 7,
+        '2008' : 7,
+        '2009' : 7,
+        '2010' : 7,
+        '2011' : 7,
+        '2012' : 7,
+        '2013' : 7,
+        '2014' : 7,
+        '2015' : 7,
+        '2016' : 7,
+        '2017' : 7,
+    }
     let valueOfDollar = {
         '1950' : 1.00,
         '1951' : 1.06,
@@ -155,6 +225,7 @@
     // let retAge = 50;
     // let curInv = 15000;
     let desLiv = 50000;
+    let index = stdy7;
 
     let minInv = 50000;
     let maxInv = 1000000;
@@ -181,7 +252,7 @@
     }
     console.log(cases);
 
-    function accountBalances(initInv, yrlyWithdrwl, strtYr, numYrs) {
+    function accountBalances(index, initInv, yrlyWithdrwl, strtYr, numYrs) {
         let yr = strtYr;
         let balances = [];
         let balance = initInv;
@@ -191,7 +262,7 @@
             balances.push(balance);
             IAbalance = Math.floor(adjustForInflation(balance, yr, strtYr));
             IAbalances.push(IAbalance);
-            let percentChange = sAndP[yr];
+            let percentChange = index[yr];
             balance = Math.floor((balance - adjustForInflation(yrlyWithdrwl, strtYr, yr)) * (100 + percentChange) / 100);
         }
         return IAbalances;
@@ -211,7 +282,7 @@
         let cases = [];
         let yr = 1950;
         for (yr; yr <= (2017 - numYrs); yr++) {
-            cases.push(allBalancesAboveZero(accountBalances(initInv, desLiv, yr, numYrs)));
+            cases.push(allBalancesAboveZero(accountBalances(index, initInv, desLiv, yr, numYrs)));
         }
         let casesAsString = cases.join('');
         let trueCases;
