@@ -252,6 +252,8 @@
     }
     console.log(cases);
 
+    // Comment in return cases and remove allBalancesAboveZero to yield 4-D matrix
+
     function accountBalances(index, initInv, yrlyWithdrwl, strtYr, numYrs) {
         let yr = strtYr;
         let balances = [];
@@ -287,7 +289,7 @@
         let cases = [];
         let yr = 1950;
         for (yr; yr <= (2017 - numYrs); yr++) {
-            cases.push(accountBalances(index, initInv, desLiv, yr, numYrs));
+            cases.push(allBalancesAboveZero(accountBalances(index, initInv, desLiv, yr, numYrs)));
         }
         let casesAsString = cases.join('');
         let trueCases;
@@ -299,14 +301,12 @@
         }
         let totalCases = cases.length;
         let percentage = Math.round((trueCases / totalCases) * 100);
-        return cases;
+        // return cases;
         return percentage;
         // console.log(percentage);
     }
     // percentHistoricalBalancesAboveZero(300000, 50);
     // console.log(accountBalances(500000, desLiv, 1960, yrsInRetirement));
-
-
 
     function finalAccountBalance(initInv, yrlyWithdrwl, strtYr, numYrs) {
         let yr = strtYr;
