@@ -92,6 +92,17 @@ $( document ).ready(function() {
         }
         return cases;
     }
+    function containsCertainCase(cases) {
+        let finalRow = cases[maxInv];
+        let rowLength = finalRow.length;
+        let finalCell = finalRow[rowLength-1];
+        if (finalCell !== 100) {
+            maxInv += invStp;
+            return false;
+            // return generateCases();
+        }
+        return true;
+    }
     /* Goes through each td element in the table element and colors it according to it's value. The lowest hue possible is 0 (0%) and the highest hue possible is 120 (100%) */
     function colorChart() {
         let table, dataCells, i, LNG;
@@ -111,22 +122,18 @@ $( document ).ready(function() {
     }
     /* Converts the cases object into an html string corresponding to a table with the data relevant to the user inputs and then replaces the table's current html with the created string. Finally it calls the colorChart function in order to color the newly generated table.*/
     function generateTable() {
-        let cases, table, tableStr;
+        let cases, table, tableStr, dur;
         cases = generateCases();
+        if(!containsCertainCase(cases)) {
+            return generateTable();
+        };
         table = $('table.historical-confidence-table');
-        tableStr = `<tr>
-        					<th></th>
-        					<th>5 Yrs</th>
-        					<th>10 Yrs</th>
-        					<th>15 Yrs</th>
-        					<th>20 Yrs</th>
-        					<th>25 Yrs</th>
-        					<th>30 Yrs</th>
-        					<th>35 Yrs</th>
-        					<th>40 Yrs</th>
-        					<th>45 Yrs</th>
-        					<th>50 Yrs</th>
-        				</tr>`;
+        tableStr = `<tr><th></th>`;
+        dur = minYrs;
+        for (dur; dur <= maxYrs; dur += yrsStp) {
+            tableStr += `<th>${dur} Yrs</th>`;
+        }
+        tableStr += `</tr>`
         for (let amount in cases) {
             let amountStr, tableRow, percentages
             amountStr = numberToDollarString(amount);
