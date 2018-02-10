@@ -19,7 +19,7 @@ $( document ).ready(function() {
     /* Returns an array of interest adjusted balances starting with a start year and going for a set number of years, assuming a yearly withdrawal and initial investment. */
     // mrkt = markets['sAndP'];
     function accountBalances(mrkt, initInv, yrlyWithdrwl, strtYr, numYrs) {
-        let yr, balances, balance, IAbalance, IAbalances, IAwithdrawal, IAwithdrawals, percentChange, annInflation, restartAt, finalYr;
+        let yr, balances, balance, IAbalance, IAbalances, IAwithdrawal, IAwithdrawals, percentChange, annInflation, restartAt, finalYr, conversionFactor;
         yr = strtYr;
         balance = initInv;
         balances = []; // The balances array isnt actually used, but is not to be removed because it could be useful if for some reason user doesn't wan't an interest adjusted answer
@@ -31,34 +31,37 @@ $( document ).ready(function() {
         IAbalances.push(IAbalance);
         restartAt = resetYr;
         finalYr = strtYr + numYrs;
+        conversionFactor = 1;
         // console.log(`Starting conditions: ${yr} : ${balance} | ${IAbalance}`);
-        for (yr; yr <= finalYr; yr++) {
+        for (yr; yr < finalYr; yr++) {
             if (yr >= restartAt) {
                 let yearsSimulated = yr - strtYr;
                 let yearsLeftToSimulate = numYrs - yearsSimulated;
                 yr = firstYr; // Needs to be restructured to not be hard coded. Will cause issues with anything that doesnt have data at 1950+
-                finalYr = yr + yearsLeftToSimulate - 1;
+                finalYr = yr + yearsLeftToSimulate;
             }
             annInflation = inflation[yr];
+            conversionFactor *= (annInflation + 100) / 100;
             IAwithdrawal = Math.round(IAwithdrawal * (100 + annInflation)) / 100; // This is assuming that the interest change is linear which is why we divide by 200 not 100.
             IAwithdrawals.push(IAwithdrawal);
             percentChange = mrkt[yr];
             balance = Math.round((balance - IAwithdrawal) * (100 + percentChange)) / 100;
             balances.push(balance);
-            IAbalance = Math.round(balance / (100 + annInflation) * 100);
+            IAbalance = Math.round(balance / conversionFactor);
             if (IAbalance <= 0) {
                 IAbalances.push(0); // If the interest adjusted balance is negative or zero just push 0 so that further balances are also zero
             }
             else {
                 IAbalances.push(IAbalance);
             }
-            // console.log(`During ${yr}: Inflation = ${annualInflation}% | Market Change = ${percentChange}% | Interest Adjusted Withdrawal = $${IAwithdrawal} | End of Year Balance = $${balance}`)
+            // console.log(`During ${yr}: Inflation = ${annInflation}% | Market Change = ${percentChange}% | Interest Adjusted Withdrawal = $${IAwithdrawal} | End of Year Balance = $${balance} | Conversion Factor = ${conversionFactor}`)
         }
         return IAbalances;
     }
     /* Returns true if the array argument has no zero values. Simulates that user's money has lasted the tested number of years. */
     function allBalancesAboveZero(balancesArray) {
-        let sortedBalances = balancesArray.sort(function(a,b) {
+        let sortedBalances = balancesArray.slice();
+        sortedBalances.sort(function(a,b) {
             return a - b;
         });
         if (sortedBalances[0] > 0) {
@@ -74,7 +77,9 @@ $( document ).ready(function() {
         cases = [];
         yr = strtYr;
         for (yr; yr <= 2017; yr++) {
-            cases.push(allBalancesAboveZero(accountBalances(mrkt, initInv, desLiv, yr, numYrs)));
+            let thisCase = accountBalances(mrkt, initInv, desLiv, yr, numYrs);
+            cases.push(allBalancesAboveZero(thisCase));
+            console.log(`${yr} : ${thisCase}`);
         }
         casesAsString = cases.join('');
         if (/true/.test(casesAsString)) {
@@ -177,6 +182,8 @@ $( document ).ready(function() {
     });
 
 /*---Tests---*/
+    mrkt = markets['sAndP'];
+    firstYr = 1950;
     // console.log(accountBalances(mrkt, 500000, 30000, 1970, 5));
     // console.log(accountBalances(mrkt, 1000, 100, 2015, 6));
 });
