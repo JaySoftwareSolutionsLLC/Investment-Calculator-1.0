@@ -19,7 +19,7 @@ $( document ).ready(function() {
     /* Returns an array of interest adjusted balances starting with a start year and going for a set number of years, assuming a yearly withdrawal and initial investment. */
     // mrkt = markets['sAndP'];
     function accountBalances(mrkt, initInv, yrlyWithdrwl, strtYr, numYrs) {
-        let yr, balances, balance, IAbalance, IAbalances, IAwithdrawal, IAwithdrawals, percentChange, annInflation, restartAt, finalYr, conversionFactor;
+        let yr, balances, balance, IAbalance, IAbalances, IAwithdrawal, IAwithdrawals, percentChange, annInflation, restartAt, finalYr, netInflation;
         yr = strtYr;
         balance = initInv;
         balances = []; // The balances array isnt actually used, but is not to be removed because it could be useful if for some reason user doesn't wan't an interest adjusted answer
@@ -31,7 +31,7 @@ $( document ).ready(function() {
         IAbalances.push(IAbalance);
         restartAt = resetYr;
         finalYr = strtYr + numYrs;
-        conversionFactor = 1;
+        netInflation = 1;
         // console.log(`Starting conditions: ${yr} : ${balance} | ${IAbalance}`);
         for (yr; yr < finalYr; yr++) {
             if (yr >= restartAt) {
@@ -41,20 +41,20 @@ $( document ).ready(function() {
                 finalYr = yr + yearsLeftToSimulate;
             }
             annInflation = inflation[yr];
-            conversionFactor *= (annInflation + 100) / 100;
+            netInflation *= (annInflation + 100) / 100;
             IAwithdrawal = Math.round(IAwithdrawal * (100 + annInflation)) / 100; // This is assuming that the interest change is linear which is why we divide by 200 not 100.
             IAwithdrawals.push(IAwithdrawal);
             percentChange = mrkt[yr];
             balance = Math.round((balance - IAwithdrawal) * (100 + percentChange)) / 100;
             balances.push(balance);
-            IAbalance = Math.round(balance / conversionFactor);
+            IAbalance = Math.round(balance / netInflation);
             if (IAbalance <= 0) {
                 IAbalances.push(0); // If the interest adjusted balance is negative or zero just push 0 so that further balances are also zero
             }
             else {
                 IAbalances.push(IAbalance);
             }
-            // console.log(`During ${yr}: Inflation = ${annInflation}% | Market Change = ${percentChange}% | Interest Adjusted Withdrawal = $${IAwithdrawal} | End of Year Balance = $${balance} | Conversion Factor = ${conversionFactor}`)
+            // console.log(`During ${yr}: Inflation = ${annInflation}% | Market Change = ${percentChange}% | Interest Adjusted Withdrawal = $${IAwithdrawal} | End of Year Balance = $${balance} | Conversion Factor = ${netInflation}`)
         }
         return IAbalances;
     }
