@@ -4,6 +4,8 @@ $( document ).ready(function() {
 /*---Initialize variables that will be used in user input---*/
     let desLiv;
     let mrkt;
+    let resetYr = 2018;
+    let firstYr;
     /*-----*/
     let minInv = 50000;
     let maxInv = 1000000;
@@ -15,24 +17,42 @@ $( document ).ready(function() {
 
 /*---Table Functionality---*/
     /* Returns an array of interest adjusted balances starting with a start year and going for a set number of years, assuming a yearly withdrawal and initial investment. */
+    // mrkt = markets['sAndP'];
     function accountBalances(mrkt, initInv, yrlyWithdrwl, strtYr, numYrs) {
-        let yr, balances, balance, IAbalance, IAbalances;
+        let yr, balances, balance, IAbalance, IAbalances, IAwithdrawal, IAwithdrawals, percentChange, annInflation, restartAt, finalYr;
         yr = strtYr;
-        balances = []; // The balances array isnt actually used, but is not to be removed because it could be useful if for some reason user doesn't wan't an interest adjusted answer
         balance = initInv;
-        IAbalance;
+        balances = []; // The balances array isnt actually used, but is not to be removed because it could be useful if for some reason user doesn't wan't an interest adjusted answer
+        IAbalance = balance;
         IAbalances = [];
-        for (yr; yr <= (strtYr + numYrs); yr++) {
+        IAwithdrawal = yrlyWithdrwl;
+        IAwithdrawals = [];
+        balances.push(balance);
+        IAbalances.push(IAbalance);
+        restartAt = resetYr;
+        finalYr = strtYr + numYrs;
+        // console.log(`Starting conditions: ${yr} : ${balance} | ${IAbalance}`);
+        for (yr; yr <= finalYr; yr++) {
+            if (yr >= restartAt) {
+                let yearsSimulated = yr - strtYr;
+                let yearsLeftToSimulate = numYrs - yearsSimulated;
+                yr = firstYr; // Needs to be restructured to not be hard coded. Will cause issues with anything that doesnt have data at 1950+
+                finalYr = yr + yearsLeftToSimulate - 1;
+            }
+            annInflation = inflation[yr];
+            IAwithdrawal = Math.round(IAwithdrawal * (100 + annInflation)) / 100; // This is assuming that the interest change is linear which is why we divide by 200 not 100.
+            IAwithdrawals.push(IAwithdrawal);
+            percentChange = mrkt[yr];
+            balance = Math.round((balance - IAwithdrawal) * (100 + percentChange)) / 100;
             balances.push(balance);
-            IAbalance = Math.floor(adjustForInflation(balance, yr, strtYr));
+            IAbalance = Math.round(balance / (100 + annInflation) * 100);
             if (IAbalance <= 0) {
                 IAbalances.push(0); // If the interest adjusted balance is negative or zero just push 0 so that further balances are also zero
             }
             else {
                 IAbalances.push(IAbalance);
             }
-            let percentChange = mrkt[yr];
-            balance = Math.floor((balance - adjustForInflation(yrlyWithdrwl, strtYr, yr)) * (100 + percentChange) / 100);
+            // console.log(`During ${yr}: Inflation = ${annualInflation}% | Market Change = ${percentChange}% | Interest Adjusted Withdrawal = $${IAwithdrawal} | End of Year Balance = $${balance}`)
         }
         return IAbalances;
     }
@@ -53,7 +73,7 @@ $( document ).ready(function() {
         let cases, yr, casesAsString, trueCases, totalCases, percentage;
         cases = [];
         yr = strtYr;
-        for (yr; yr <= (2017 - numYrs); yr++) {
+        for (yr; yr <= 2017; yr++) {
             cases.push(allBalancesAboveZero(accountBalances(mrkt, initInv, desLiv, yr, numYrs)));
         }
         casesAsString = cases.join('');
@@ -69,15 +89,14 @@ $( document ).ready(function() {
     }
     /* Goes through every investment value starting with minInv and increasing by invStp then goes through every duration starting with minYrs and increasing by yrsStp and the returns a single cases object which has the investment amount as it's property key and the % of instances where that investment was enough for each duration interval in an array. */
     function generateCases() {
-        let startYear, cases, inv;
+        let cases, inv;
         desLiv = $('section.user-info input').val();
         mrkt = $('section.user-info select').val();
         mrkt = markets[mrkt];
         for (let yr in mrkt) {
-            startYear = Number(yr); // This sets the starting year to the first property key value of the current market used. If there is a better way though this should be changed because it could cause bugs in certain browsers
+            firstYr = Number(yr); // This sets the starting year to the first property key value of the current market used. If there is a better way though this should be changed because it could cause bugs in certain browsers
             break;
         }
-        console.log(startYear);
         cases = {};
         inv = minInv;
         for (inv; inv <= maxInv; inv += invStp) {
@@ -85,13 +104,14 @@ $( document ).ready(function() {
             years = minYrs;
             successByInv = []; // This is the array of success percentages for a given investment (ie. $150,000 -> [50%, 43%, 32%, 11%...])
             for (years; years <= maxYrs; years += yrsStp) {
-                let successRate = percentHistoricalBalancesAboveZero(inv, years, startYear)
+                let successRate = percentHistoricalBalancesAboveZero(inv, years, firstYr)
                 successByInv.push(successRate);
             }
             cases[inv] = successByInv;
         }
         return cases;
     }
+    // Checks if cases includes an instance of a 100% confidence level
     function containsCertainCase(cases) {
         let finalRow = cases[maxInv];
         let rowLength = finalRow.length;
@@ -155,4 +175,8 @@ $( document ).ready(function() {
     $('section.user-info select').change(function() {
         generateTable()
     });
+
+/*---Tests---*/
+    // console.log(accountBalances(mrkt, 500000, 30000, 1970, 5));
+    // console.log(accountBalances(mrkt, 1000, 100, 2015, 6));
 });
