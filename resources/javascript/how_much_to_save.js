@@ -79,7 +79,7 @@ $( document ).ready(function() {
         for (yr; yr <= 2017; yr++) {
             let thisCase = accountBalances(mrkt, initInv, desLiv, yr, numYrs);
             cases.push(allBalancesAboveZero(thisCase));
-            console.log(`${yr} : ${thisCase}`);
+            // console.log(`${yr} : ${thisCase}`);
         }
         casesAsString = cases.join('');
         if (/true/.test(casesAsString)) {
