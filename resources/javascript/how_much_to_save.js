@@ -42,6 +42,7 @@ $( document ).ready(function() {
             }
             annInflation = inflation[yr];
             netInflation *= (annInflation + 100) / 100;
+            netInflation = Math.round(netInflation * 10000) / 10000;
             IAwithdrawal = Math.round(IAwithdrawal * (100 + annInflation)) / 100; // This is assuming that the interest change is linear which is why we divide by 200 not 100.
             IAwithdrawals.push(IAwithdrawal);
             percentChange = mrkt[yr];
@@ -54,7 +55,7 @@ $( document ).ready(function() {
             else {
                 IAbalances.push(IAbalance);
             }
-            // console.log(`During ${yr}: Inflation = ${annInflation}% | Market Change = ${percentChange}% | Interest Adjusted Withdrawal = $${IAwithdrawal} | End of Year Balance = $${balance} | Conversion Factor = ${netInflation}`)
+            // console.log(`During ${yr}: Inflation = ${annInflation}% | Net Inflation = ${netInflation} | Market Change = ${percentChange}% | Interest Adjusted Withdrawal = $${IAwithdrawal} | End of Year Balance = $${balance}`)
         }
         return IAbalances;
     }
