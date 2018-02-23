@@ -22,7 +22,7 @@
 	<!--CSS-->
   	<link rel="stylesheet" href="resources/css/reset.css">
 	<link rel='stylesheet' href='resources/css/main.css'>
-  	<!-- <link rel="stylesheet" href="resources/css/situation_room.css"> -->
+  	<link rel="stylesheet" href="resources/css/situation_room.css">
 	<!--Google Fonts-->
 <link href="https://fonts.googleapis.com/css?family=Eczar:800|Montserrat+Alternates" rel="stylesheet">
 </head>
@@ -37,6 +37,20 @@
 			</nav>
 		</header>
 
+		<h1>Plan Assessment</h1>
+		<section class='inputs'>
+			<div class='current'>
+				<h2>Current Situation</h2>
+				<label for='dob'>Date of Birth</label>
+				<input type='date' id='dob' max='2020-01-01'>
+				<label for='debts'>Debts</label>
+				<input type='number' id='debts' step="100" min="0">
+				<label for='aggInt'>Aggregate Interest Rate %</label>
+				<input type='number' id='aggInt' step="0.05" min="0">
+				<button>Add Account</button>
+			</div>
+		</section>
+		<button>Analyze Plan</button>
 
 		<!--JavaScript-->
 		<script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.js"></script>

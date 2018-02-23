@@ -1,0 +1,26 @@
+* {}
+html {}
+body {}
+h1 {
+    font-size: 4rem;
+    margin: 2rem 0;
+}
+section.inputs {
+    display: inline-flex;
+    flex-wrap: nowrap;
+    width: 100%;
+}
+div.current, div.future {
+    width: 50%;
+    display: inline-flex;
+    flex-flow: column;
+    align-items: center;
+}
+section.inputs div h2 {
+    font-size: 2rem;
+}
+section.inputs div.current input {
+    width: 70%;
+    text-align: center;
+    margin-bottom: 0.5rem;
+}
